@@ -60,8 +60,8 @@ function CallScreen() {
           landmarks,
           GestureRecognizer.HAND_CONNECTIONS,
           {
-            color: "#88c8ff",
-            lineWidth: 2,
+            color: "#06b6d4",
+            lineWidth: 4,
           }
         );
         drawingUtils.drawLandmarks(landmarks, {
@@ -94,8 +94,7 @@ function CallScreen() {
     );
     gestureRecognizer = await GestureRecognizer.createFromOptions(vision, {
       baseOptions: {
-        modelAssetPath:
-          "https://storage.googleapis.com/mediapipe-tasks/gesture_recognizer/gesture_recognizer.task",
+        modelAssetPath: "/mark1.task",
       },
       numHands: 2,
     });
@@ -236,7 +235,10 @@ function CallScreen() {
   }, []);
 
   return (
-    <div className="flex item-center justify-center relative h-dvh z-10 ">
+    <div
+      className="flex item-center justify-center relative h-dvh "
+      style={{ position: "relative", zIndex: 1, padding: "20px" }}
+    >
       <div className="Local w-full flex  item-center justify-around  ">
         <video
           autoPlay
@@ -260,7 +262,7 @@ function CallScreen() {
               transform: "scaleX(-1)",
             }}
           ></canvas>
-          <div className="w-[50%]  h-[50px] text-center font-semibold flex items-center justify-center ">
+          <div className="w-[50%]  h-[50px] text-center font-semibold flex items-center justify-center  ">
             <p>{gestureOutput[0]}</p>
           </div>
         </div>

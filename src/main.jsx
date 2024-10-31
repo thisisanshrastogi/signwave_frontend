@@ -22,7 +22,14 @@ const router = createBrowserRouter([
   },
   {
     path: "/call/:username/:room",
-    element: <Call />,
+    element: (
+      <div
+        className="flex item-center justify-center"
+        style={{ position: "relative", minHeight: "100vh", overflow: "hidden" }}
+      >
+        <Call />
+      </div>
+    ),
   },
 ]);
 createRoot(document.getElementById("root")).render(
