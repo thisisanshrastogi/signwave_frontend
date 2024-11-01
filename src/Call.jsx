@@ -10,6 +10,26 @@ import socketio from "socket.io-client";
 import { Hands } from "@mediapipe/hands";
 import { Camera } from "@mediapipe/camera_utils";
 
+// const Loader = () => {
+//   return (
+//     <div className="loader">
+//       hello
+//       {/* <span className="bar"></span>
+//       <span className="bar"></span>
+//       <span className="bar"></span> */}
+//     </div>
+//   );
+// };
+// const LoaderBig = () => {
+//   return (
+//     <div className="loader">
+//       <span className="barBig"></span>
+//       <span className="barBig"></span>
+//       <span className="barBig"></span>
+//     </div>
+//   );
+// };
+
 function CallScreen() {
   let gestureRecognizer;
   const model_path = "./mark1.task";
@@ -24,6 +44,7 @@ function CallScreen() {
   let canvasElement;
   let canvasCtx;
   const [gestureOutput, setGestureOutput] = useState("");
+  const [loader, setLoader] = useState(true);
 
   const socket = useRef(
     socketio("http://localhost:5000", { autoConnect: false })
@@ -114,8 +135,8 @@ function CallScreen() {
       .getUserMedia({
         audio: false,
         video: {
-          height: 450,
-          width: 450,
+          height: 500,
+          width: 800,
         },
       })
       .then((stream) => {
@@ -236,24 +257,37 @@ function CallScreen() {
 
   return (
     <div
-      className="flex item-center justify-center relative h-dvh "
+      className="gradBack flex item-center justify-center relative w-dvw h-dvh  "
       style={{ position: "relative", zIndex: 1, padding: "20px" }}
     >
       <div className="Local w-full flex  item-center justify-around  ">
+        {/* <div className="leftBox bg-current w-2/3"></div> */}
+
         <video
           autoPlay
           muted
           playsInline
           ref={localVideoRef}
-          className="rounded-xl m-auto border-2 border-grey-500"
+          className="rounded-3xl m-auto "
           style={{ transform: "scaleX(-1)" }}
         />
-        <div className="middleCanvas flex flex-col items-center justify-center">
+
+        <div className="middleCanvas flex flex-col items-center justify-center  w-[30%] h-[90%] rounded-2xl border border-neutral-700 border-opacity-30 my-auto bg-neutral-700 bg-opacity-10 ">
+          <div className="remoteFeed w-[80%] h-[200px] rounded-3xl overflow-hidden  relative mt-4 mb-10 ">
+            <video
+              autoPlay
+              muted
+              playsInline
+              ref={remoteVideoRef}
+              className="rounded-3xl m-0 p-0 border border-gray-400"
+              style={{ transform: "scaleX(-1)" }}
+            />
+          </div>
           <canvas
-            className="output_canvas mx-auto border-[0.5px] border-cyan-500 border-opacity-60 shadow-xl"
+            className="output_canvas mx-auto border-[1.5px] rounded-xl border-cyan-500 border-opacity-60 shadow-md   shadow-cyan-600/40"
             id="output_canvas"
-            width="400"
-            height="400"
+            width="800"
+            height="600"
             ref={canvasRef}
             style={{
               // position: "absolute",
@@ -262,19 +296,19 @@ function CallScreen() {
               transform: "scaleX(-1)",
             }}
           ></canvas>
-          <div className="w-[50%]  h-[50px] text-center font-semibold flex items-center justify-center  ">
+          <div className="w-[50%]  h-[50px] text-center font-bold flex items-center justify-center">
             <p>{gestureOutput[0]}</p>
           </div>
         </div>
 
-        <video
+        {/* <video
           autoPlay
           muted
           playsInline
           ref={remoteVideoRef}
           className="rounded-xl m-auto border-2 border-grey-500"
           style={{ transform: "scaleX(-1)" }}
-        />
+        /> */}
       </div>
 
       {/* <div className="">Remote Stream</div> */}

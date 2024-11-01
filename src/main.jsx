@@ -6,6 +6,7 @@ import ParticleBackground from "./ParticleBackground.jsx";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Homepage from "./Homepage.jsx";
 import Call from "./Call.jsx";
+import DarkRadialGradientBackground from "./DarkRadialGradientBackground.jsx";
 
 const router = createBrowserRouter([
   {
@@ -27,6 +28,9 @@ const router = createBrowserRouter([
         className="flex item-center justify-center"
         style={{ position: "relative", minHeight: "100vh", overflow: "hidden" }}
       >
+        {/* <DarkRadialGradientBackground> */}
+        {/* </DarkRadialGradientBackground> */}
+        {/* <ParticleBackground /> */}
         <Call />
       </div>
     ),

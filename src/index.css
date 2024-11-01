@@ -9,8 +9,8 @@
 
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
-  background-color: #060407;
-
+  /* background-color: #060407; */
+  background: linear-gradient(180deg, rgba(34, 2, 23, 0.20) 11.5%, rgba(26, 32, 40, 0.20) 45.5%, rgba(6, 4, 7, 0.20) 84.5%), #060407;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -23,4 +23,68 @@
   top: 0;
   left: 0;
   z-index: -1; /* Send it to the background */
+}
+
+.gradBack{
+  background: linear-gradient(180deg, rgba(34, 2, 23, 0.20) 11.5%, rgba(26, 32, 40, 0.20) 45.5%, rgba(6, 4, 7, 0.20) 84.5%), #060407;
+}
+
+
+
+/* From Uiverse.io by aryamitra06 */ 
+.loader {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+/* big loader */
+.barBig {
+  display: inline-block;
+  width: 10px;
+  height: 60px;
+  background-color: rgba(255, 255, 255, .5);
+  border-radius: 10px;
+  animation: scale-up4 1s linear infinite;
+
+}
+
+.barBig:nth-child(2) {
+  height: 90px;
+  margin: 0 5px;
+  animation-delay: .25s;
+}
+
+.barBig:nth-child(3) {
+  animation-delay: .5s;
+}
+/* small loader */
+.bar {
+  display: inline-block;
+  width: 3px;
+  height: 20px;
+  background-color: rgba(255, 255, 255, .5);
+  border-radius: 10px;
+  animation: scale-up4 1s linear infinite;
+}
+
+.bar:nth-child(2) {
+  height: 35px;
+  margin: 0 5px;
+  animation-delay: .25s;
+}
+
+.bar:nth-child(3) {
+  animation-delay: .5s;
+}
+
+@keyframes scale-up4 {
+  20% {
+    background-color: #ffff;
+    transform: scaleY(1.5);
+  }
+
+  40% {
+    transform: scaleY(1);
+  }
 }
