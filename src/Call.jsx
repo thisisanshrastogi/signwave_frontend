@@ -47,7 +47,7 @@ function CallScreen() {
   const [loader, setLoader] = useState(true);
 
   const socket = useRef(
-    socketio("http://localhost:5000", { autoConnect: false })
+    socketio("http://172.16.207.228:9000", { autoConnect: false })
   );
   const pcRef = useRef(null); // PeerConnection reference
 
