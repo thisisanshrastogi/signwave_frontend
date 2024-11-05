@@ -9,17 +9,18 @@ import { useRef, useEffect } from "react";
 import socketio from "socket.io-client";
 import { Hands } from "@mediapipe/hands";
 import { Camera } from "@mediapipe/camera_utils";
-
-// const Loader = () => {
-//   return (
-//     <div className="loader">
-//       hello
-//       {/* <span className="bar"></span>
-//       <span className="bar"></span>
-//       <span className="bar"></span> */}
-//     </div>
-//   );
-// };
+import { MdCallEnd } from "react-icons/md";
+import { useNavigate } from "react-router-dom";
+const Loader = () => {
+  return (
+    <div className="loader">
+      hello
+      {/* <span className="bar"></span>
+      <span className="bar"></span>
+      <span className="bar"></span> */}
+    </div>
+  );
+};
 // const LoaderBig = () => {
 //   return (
 //     <div className="loader">
@@ -40,11 +41,34 @@ function CallScreen() {
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);
   const canvasRef = useRef(null);
+
+  const navigate = useNavigate();
   let video;
   let canvasElement;
   let canvasCtx;
   const [gestureOutput, setGestureOutput] = useState("");
   const [loader, setLoader] = useState(true);
+  const [anotherLoader, setAnotherLoader] = useState(true);
+
+  const endCall = () => {
+    if (pcRef.current) {
+      pcRef.current.close();
+      pcRef.current = null;
+    }
+    if (localVideoRef.current.srcObject) {
+      const localStream = localVideoRef.current.srcObject;
+      localStream.getTracks().forEach((track) => track.stop());
+      localVideoRef.current.srcObject = null;
+    }
+    if (socket.current.connected) {
+      socket.current.disconnect();
+    }
+    if (remoteVideoRef.current) {
+      remoteVideoRef.current.srcObject = null;
+    }
+
+    navigate("/");
+  };
 
   const socket = useRef(
     socketio("http://172.16.207.228:9000", { autoConnect: false })
@@ -141,7 +165,10 @@ function CallScreen() {
       })
       .then((stream) => {
         console.log("Local Stream found");
+
         localVideoRef.current.srcObject = stream;
+
+        setLoader(false);
         socket.current.connect();
         socket.current.emit("join", {
           username: localUsername,
@@ -166,6 +193,7 @@ function CallScreen() {
   const onTrack = (event) => {
     console.log("Adding remote track");
     remoteVideoRef.current.srcObject = event.streams[0];
+    setAnotherLoader(false);
   };
 
   const createPeerConnection = () => {
@@ -260,17 +288,25 @@ function CallScreen() {
       className="gradBack flex item-center justify-center relative w-dvw h-dvh  "
       style={{ position: "relative", zIndex: 1, padding: "20px" }}
     >
-      <div className="Local w-full flex  item-center justify-around  ">
+      <div className="Local w-full flex  item-center justify-around relative ">
+        {loader && <Loader />}
         {/* <div className="leftBox bg-current w-2/3"></div> */}
-
-        <video
-          autoPlay
-          muted
-          playsInline
-          ref={localVideoRef}
-          className="rounded-3xl m-auto "
-          style={{ transform: "scaleX(-1)" }}
-        />
+        <div className="w-fit h-full min-w-[60%] flex items-center justify-center">
+          <video
+            autoPlay
+            muted
+            playsInline
+            ref={localVideoRef}
+            className="rounded-3xl m-auto "
+            style={{ transform: "scaleX(-1)" }}
+          />
+          <button
+            onClick={endCall}
+            className="bg-red-600 btn text-white rounded-badge absolute bottom-16 m-auto w-[60px]"
+          >
+            <MdCallEnd />
+          </button>
+        </div>
 
         <div className="middleCanvas flex flex-col items-center justify-center  w-[30%] h-[90%] rounded-2xl border border-neutral-700 border-opacity-30 my-auto bg-neutral-700 bg-opacity-10 ">
           <div className="remoteFeed w-[80%] h-[200px] rounded-3xl overflow-hidden  relative mt-4 mb-10 ">
