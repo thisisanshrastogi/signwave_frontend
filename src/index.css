@@ -26,7 +26,10 @@
 }
 
 .gradBack{
-  background: linear-gradient(180deg, rgba(34, 2, 23, 0.20) 11.5%, rgba(26, 32, 40, 0.20) 45.5%, rgba(6, 4, 7, 0.20) 84.5%), #060407;
+  background: radial-gradient(circle at center, #1f1e28, #13131a), 
+  radial-gradient(circle at 70% 30%, rgba(255, 0, 255, 0.2), transparent 50%), 
+  radial-gradient(circle at 30% 70%, rgba(0, 200, 255, 0.2), transparent 50%);
+
 }
 
 
