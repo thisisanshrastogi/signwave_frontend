@@ -1,6 +1,4 @@
 import { useParams } from "react-router-dom";
-import { FaVideoSlash } from "react-icons/fa6";
-
 import {
   GestureRecognizer,
   FilesetResolver,
@@ -13,13 +11,13 @@ import { Hands } from "@mediapipe/hands";
 import { Camera } from "@mediapipe/camera_utils";
 import { MdCallEnd } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
-
 const Loader = () => {
   return (
     <div className="loader">
+      hello
+      {/* <span className="bar"></span>
       <span className="bar"></span>
-      <span className="bar"></span>
-      <span className="bar"></span>
+      <span className="bar"></span> */}
     </div>
   );
 };
@@ -34,19 +32,6 @@ const Loader = () => {
 // };
 
 function CallScreen() {
-  const config = {
-    iceServers: [
-      { urls: "stun:stun.l.google.com:19302" },
-      {
-        urls: "turn:openrelay.metered.ca:80",
-        username: "openrelayproject",
-        credential: "openrelayproject",
-      },
-    ],
-  };
-
-  // Disabling console logs
-  // console.log = function (...args) {};
   let gestureRecognizer;
   const model_path = "./mark1.task";
   let runningMode = "VIDEO";
@@ -62,9 +47,8 @@ function CallScreen() {
   let canvasElement;
   let canvasCtx;
   const [gestureOutput, setGestureOutput] = useState("");
-  const [loader, setLoader] = useState(false);
+  const [loader, setLoader] = useState(true);
   const [anotherLoader, setAnotherLoader] = useState(true);
-  const [videoOff, setVideoOff] = useState(true);
 
   const endCall = () => {
     if (pcRef.current) {
@@ -94,20 +78,8 @@ function CallScreen() {
   let lastVideoTime = -1;
   let results = undefined;
 
-  const toggleVideo = async () => {
-    const stream = localVideoRef.current.srcObject;
-    const tracks = stream.getVideoTracks();
-    setVideoOff(!tracks[0].enabled);
-    tracks[0].enabled = !tracks[0].enabled;
-  };
-
-  const handleVideoLoaded = () => {
-    setLoader(false);
-  };
-
   async function predictWebcam() {
     const webcam = localVideoRef.current;
-    // const webcam = video;
     const videoWidth = webcam.videoWidth;
     const videoHeight = webcam.videoHeight;
 
@@ -122,12 +94,12 @@ function CallScreen() {
     canvasCtx.save();
     canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
     const drawingUtils = new DrawingUtils(canvasCtx);
-    canvasElement.style.height = `200px`;
-    // webcam.style.height = `${videoHeight}px`;
-    canvasElement.style.width = `300px`;
-    // webcam.style.width = `${videoWidth}px`;
+    canvasElement.style.height = `250px`;
+    webcam.style.height = `${videoHeight}px`;
+    canvasElement.style.width = `250px`;
+    webcam.style.width = `${videoWidth}px`;
 
-    if (results?.landmarks) {
+    if (results.landmarks) {
       for (const landmarks of results.landmarks) {
         drawingUtils.drawConnectors(
           landmarks,
@@ -139,13 +111,13 @@ function CallScreen() {
         );
         drawingUtils.drawLandmarks(landmarks, {
           color: "#fff",
-          lineWidth: 0,
+          lineWidth: 1,
         });
       }
     }
     canvasCtx.restore();
 
-    if (results?.gestures && results?.gestures.length > 0) {
+    if (results.gestures && results.gestures.length > 0) {
       const categoryName = results.gestures[0][0].categoryName;
       const categoryScore = parseFloat(
         results.gestures[0][0].score * 100
@@ -174,12 +146,11 @@ function CallScreen() {
     await predictWebcam();
   };
 
-  const sendData = (data, type) => {
+  const sendData = (data) => {
     socket.current.emit("data", {
       username: localUsername,
       room: roomName,
       data: data,
-      type: type,
     });
   };
 
@@ -188,8 +159,8 @@ function CallScreen() {
       .getUserMedia({
         audio: false,
         video: {
-          width: { min: 200, ideal: 1920, max: 1920 },
-          height: { min: 150, ideal: 1080, max: 1080 },
+          height: 500,
+          width: 800,
         },
       })
       .then((stream) => {
@@ -197,8 +168,8 @@ function CallScreen() {
 
         localVideoRef.current.srcObject = stream;
 
+        setLoader(false);
         socket.current.connect();
-        console.log("Socket connected ");
         socket.current.emit("join", {
           username: localUsername,
           room: roomName,
@@ -212,70 +183,42 @@ function CallScreen() {
   const onIceCandidate = (event) => {
     if (event.candidate) {
       console.log("Sending ICE candidate");
-      sendData(event.candidate, "candidate");
+      sendData({
+        type: "candidate",
+        candidate: event.candidate,
+      });
     }
   };
 
   const onTrack = (event) => {
     console.log("Adding remote track");
     remoteVideoRef.current.srcObject = event.streams[0];
-  };
-
-  const handleRemotetrackEvent = (event) => {
-    const remoteStream = event.streams[0];
-    const trackList = remoteStream.getTracks();
-    if (remoteVideoRef.current.srcObject) {
-      // end call
-    }
-  };
-
-  function handleICEConnectionStateChangeEvent(event) {
-    switch (pcRef.current.iceConnectionState) {
-      case "closed":
-      case "failed":
-        // closeVideoCall();
-        break;
-    }
-  }
-
-  const closeVideoCall = () => {
-    // if (pcRef.current) {
-    //   pcRef.current.ontrack = null;
-    //   pcRef.current.onrem;
-    //   pcRef.current.close();
-    //   pcRef.current = null;
-    // }
-  };
-
-  const handleNegotiationNeededEvent = async () => {
-    console.log("handleNegotiationNeededEvent");
-    sendOffer();
+    setAnotherLoader(false);
   };
 
   const createPeerConnection = () => {
     try {
-      console.log("Creating peer connection");
-      pcRef.current = new RTCPeerConnection(config);
+      pcRef.current = new RTCPeerConnection({
+        iceServers: [
+          { urls: "stun:stun.l.google.com:19302" },
+          {
+            urls: "turn:openrelay.metered.ca:80",
+            username: "openrelayproject",
+            credential: "openrelayproject",
+          },
+        ],
+      });
       pcRef.current.onicecandidate = onIceCandidate;
       pcRef.current.ontrack = onTrack;
-      pcRef.current.onnegotiationneeded = handleNegotiationNeededEvent;
-      pcRef.current.onremotetrack = handleRemotetrackEvent;
-      pcRef.current.oniceconnectionstatechange =
-        handleICEConnectionStateChangeEvent;
 
       pcRef.current.onconnectionstatechange = (event) => {
         console.log("Connection State: ", pcRef.current.connectionState);
-        if (pcRef.current.connectionState === "connected") {
-          console.log("starting model again");
-          createGestureRecognizer();
-        }
       };
 
       const localStream = localVideoRef.current.srcObject;
       for (const track of localStream.getTracks()) {
         pcRef.current.addTrack(track, localStream);
       }
-      localVideoRef.current.srcObject = localStream;
       console.log("PeerConnection created");
     } catch (error) {
       console.error("PeerConnection failed: ", error);
@@ -286,35 +229,27 @@ function CallScreen() {
     console.log("Sending offer");
     const offer = await pcRef.current.createOffer();
     await pcRef.current.setLocalDescription(offer);
-    sendData(offer, "offer");
+    sendData(offer);
   };
 
   const sendAnswer = async (data) => {
-    console.log("here");
-    console.log(data);
-    const offer = new RTCSessionDescription(data.data);
-    await pcRef.current.setRemoteDescription(offer);
+    await pcRef.current.setRemoteDescription(new RTCSessionDescription(data));
     console.log("Creating answer");
     const answer = await pcRef.current.createAnswer();
     await pcRef.current.setLocalDescription(answer);
-    sendData(answer, "answer");
+    sendData(answer);
   };
 
   const signalingDataHandler = (data) => {
-    console.log(data);
     if (!pcRef.current) {
       createPeerConnection();
     }
-    if (data.type === "offer" && pcRef.current.signalingState !== "stable") {
-      console.log("trying to send answer");
+    if (data.type === "offer") {
       sendAnswer(data);
     } else if (data.type === "answer") {
-      console.log("first answer");
-
-      const answer = new RTCSessionDescription(data.data);
-      pcRef.current.setRemoteDescription(answer);
+      pcRef.current.setRemoteDescription(new RTCSessionDescription(data));
     } else if (data.type === "candidate") {
-      pcRef.current.addIceCandidate(new RTCIceCandidate(data.data));
+      pcRef.current.addIceCandidate(new RTCIceCandidate(data.candidate));
     } else {
       console.log("Unknown Data");
     }
@@ -325,27 +260,22 @@ function CallScreen() {
     canvasElement = canvasRef.current;
     canvasCtx = canvasElement.getContext("2d");
     createGestureRecognizer();
-    remoteVideoRef.current.addEventListener(
-      "loadedmetadata",
-      handleVideoLoaded
-    );
-    remoteVideoRef.current.addEventListener("canplay", handleVideoLoaded);
     socket.current.on("ready", () => {
+      console.log("Ready to Connect!");
       if (!pcRef.current) {
-        console.log("Ready to Connect!");
         createPeerConnection();
       }
-      // sendOffer();
+      sendOffer();
     });
 
     socket.current.on("data", (data) => {
-      signalingDataHandler(data);
+      console.log("Data received: ", data);
+      signalingDataHandler(data.data);
     });
 
     startConnection();
+
     return () => {
-      socket.current.disconnect();
-      console.log("Socket disconnected");
       if (pcRef.current) {
         pcRef.current.close();
         pcRef.current = null;
@@ -358,60 +288,42 @@ function CallScreen() {
       className="gradBack flex item-center justify-center relative w-dvw h-dvh  "
       style={{ position: "relative", zIndex: 1, padding: "20px" }}
     >
-      <div className="Local w-full flex  item-center justify-around  ">
+      <div className="Local w-full flex  item-center justify-around relative ">
+        {loader && <Loader />}
         {/* <div className="leftBox bg-current w-2/3"></div> */}
-        <div className="w-2/3  min-w-[60%] flex items-center justify-center relative">
+        <div className="w-fit h-full min-w-[60%] flex items-center justify-center">
           <video
             autoPlay
             muted
             playsInline
             ref={localVideoRef}
-            className="rounded-3xl "
+            className="rounded-3xl m-auto "
             style={{ transform: "scaleX(-1)" }}
           />
-          <div className=""></div>
-          <div className="Controlls absolute bottom-0 m-auto flex item-center gap-4">
-            <button
-              onClick={toggleVideo}
-              className={`  opacity-50 px-4 py-4 text-white rounded-badge  w-[60px] text-2xl ${
-                videoOff
-                  ? "bg-neutral-700 hover:bg-neutral-500"
-                  : "bg-white text-black hover:bg-gray-200 opacity-100"
-              }  `}
-            >
-              <FaVideoSlash />
-            </button>
-            <button
-              onClick={endCall}
-              className="bg-red-600 px-4 py-4 text-white rounded-badge  w-[60px] text-2xl hover:bg-red-700"
-            >
-              <MdCallEnd className="m-auto" />
-            </button>
-          </div>
+          <button
+            onClick={endCall}
+            className="bg-red-600 btn text-white rounded-badge absolute bottom-16 m-auto w-[60px]"
+          >
+            <MdCallEnd />
+          </button>
         </div>
 
-        <div className="middleCanvas  flex flex-col items-center justify-center  w-[30%] h-[90%] rounded-2xl border border-neutral-700 border-opacity-30 my-auto bg-neutral-700 bg-opacity-10 ">
-          <div className="remoteFeed  w-[80%] h-[200px] rounded-3xl   relative mt-4 mb-10 ">
-            {loader ? (
-              <Loader />
-            ) : (
-              <video
-                autoPlay
-                muted
-                playsInline
-                ref={remoteVideoRef}
-                className="rounded-3xl m-0 p-0 border border-gray-400"
-                style={{ transform: "scaleX(-1)" }}
-              />
-            )}
+        <div className="middleCanvas flex flex-col items-center justify-center  w-[30%] h-[90%] rounded-2xl border border-neutral-700 border-opacity-30 my-auto bg-neutral-700 bg-opacity-10 ">
+          <div className="remoteFeed w-[80%] h-[200px] rounded-3xl overflow-hidden  relative mt-4 mb-10 ">
+            <video
+              autoPlay
+              muted
+              playsInline
+              ref={remoteVideoRef}
+              className="rounded-3xl m-0 p-0 border border-gray-400"
+              style={{ transform: "scaleX(-1)" }}
+            />
           </div>
           <canvas
-            className="output_canvas mx-auto border-[1.5px] rounded-xl border-cyan-500 border-opacity-60 shadow-md   shadow-cyan-600/40 w-[300px] h-[200px] "
+            className="output_canvas mx-auto border-[1.5px] rounded-xl border-cyan-500 border-opacity-60 shadow-md   shadow-cyan-600/40"
             id="output_canvas"
             width="800"
             height="600"
-            // width="800"
-            // height="600"
             ref={canvasRef}
             style={{
               // position: "absolute",

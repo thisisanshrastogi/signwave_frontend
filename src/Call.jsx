@@ -267,7 +267,7 @@ function CallScreen() {
         console.log("Connection State: ", pcRef.current.connectionState);
         if (pcRef.current.connectionState === "connected") {
           console.log("starting model again");
-          // createGestureRecognizer();
+          createGestureRecognizer();
         }
       };
 
@@ -324,12 +324,15 @@ function CallScreen() {
     video = localVideoRef.current;
     canvasElement = canvasRef.current;
     canvasCtx = canvasElement.getContext("2d");
+    startConnection();
+    // createGestureRecognizer();
 
     remoteVideoRef.current.addEventListener(
       "loadedmetadata",
       handleVideoLoaded
     );
     remoteVideoRef.current.addEventListener("canplay", handleVideoLoaded);
+
     socket.current.on("ready", () => {
       if (!pcRef.current) {
         console.log("Ready to Connect!");
@@ -342,8 +345,6 @@ function CallScreen() {
       signalingDataHandler(data);
     });
 
-    startConnection();
-    createGestureRecognizer();
     return () => {
       socket.current.disconnect();
       console.log("Socket disconnected");
