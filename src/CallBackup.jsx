@@ -169,7 +169,7 @@ function CallScreen() {
       baseOptions: {
         modelAssetPath: "/mark1.task",
       },
-      numHands: 1,
+      numHands: 2,
     });
     await predictWebcam();
   };
@@ -267,7 +267,7 @@ function CallScreen() {
         console.log("Connection State: ", pcRef.current.connectionState);
         if (pcRef.current.connectionState === "connected") {
           console.log("starting model again");
-          // createGestureRecognizer();
+          createGestureRecognizer();
         }
       };
 
@@ -324,7 +324,7 @@ function CallScreen() {
     video = localVideoRef.current;
     canvasElement = canvasRef.current;
     canvasCtx = canvasElement.getContext("2d");
-
+    createGestureRecognizer();
     remoteVideoRef.current.addEventListener(
       "loadedmetadata",
       handleVideoLoaded
@@ -343,7 +343,6 @@ function CallScreen() {
     });
 
     startConnection();
-    createGestureRecognizer();
     return () => {
       socket.current.disconnect();
       console.log("Socket disconnected");
