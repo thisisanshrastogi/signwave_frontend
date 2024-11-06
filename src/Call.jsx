@@ -87,7 +87,7 @@ function CallScreen() {
   };
 
   const socket = useRef(
-    socketio("http://127.0.0.1:9000", { autoConnect: false })
+    socketio("http://172.16.207.228:9000", { autoConnect: false })
   );
   const pcRef = useRef(null); // PeerConnection reference
 
